@@ -109,51 +109,43 @@ export const getPostById=async(req,res)=>{
 
 
 export const getAllTags = async (req, res) => {
-  console.log("🔥 getAllTags controller called");
 
-  try {
+    try {
     const posts = await Post.find({ tags: { $exists: true, $ne: [] } });
 
     const allTags = [];
 
-    // Collect all tags after cleaning them
-    posts.forEach(post => {
-      post.tags.forEach(tagString => {
-        const tags = tagString
-          .replace(/,/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .split(' ');
+        posts.forEach(post => {
+        post.tags.forEach(tagString => {
+            const tags = tagString
+            .replace(/,/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .split(' ');
 
-        allTags.push(...tags);
-      });
-    });
+            allTags.push(...tags);
+        });
+        });
 
-    // Remove empty and get unique
-    const uniqueTags = Array.from(new Set(allTags.filter(Boolean)));
+        const uniqueTags = Array.from(new Set(allTags.filter(Boolean)));
 
-    // Optional: You can get a limit from query params like ?limit=10
-    const limit = parseInt(req.query.limit) || 10; // default to 10
-    const limitedTags = uniqueTags.slice(0, limit);
+        const limit = parseInt(req.query.limit) || 10; // default to 10
+        const limitedTags = uniqueTags.slice(0, limit);
 
-    res.status(200).json({
-      success: true,
-      tags: limitedTags
-    });
+        res.status(200).json({
+        success: true,
+        tags: limitedTags
+        });
 
-  } catch (error) {
-    console.error("❌ Error fetching tags:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch tags"
-    });
-  }
+    } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "Failed to fetch tags"
+        });
+    }
 };
 
-// export const getAllTags = async (req, res) => {
-//   console.log("🔥 This is the correct getAllTags route!");
-//   res.status(200).json({ success: true, tags: ["test1", "test2"] });
-// };
+
 
 
 
@@ -210,5 +202,43 @@ export const updatePost = async (req, res) => {
     } catch (error) {
         console.error("Update error:", error);
         res.status(500).json({ success: false, message: "Failed to update post" });
+    }
+};
+
+
+export const getTopAuthors = async (req, res) => {
+    try {
+    // Group by author and count number of posts
+    const result = await Post.aggregate([
+        { $group: { _id: "$author", postCount: { $sum: 1 } } },
+        { $sort: { postCount: -1 } },
+        { $limit: 5 },
+        {
+            $lookup: {
+                from: "users", // collection name
+                localField: "_id",
+                foreignField: "_id",
+                as: "authorDetails"
+            }
+        },
+        { $unwind: "$authorDetails" },
+        {
+            $project: {
+                username: "$authorDetails.username",
+                avatar: "$authorDetails.avatar"
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        authors: result
+    });
+    } catch (error) {
+    console.error("❌ Error fetching top authors:", error);
+    res.status(500).json({
+        success: false,
+        message: "Failed to fetch authors"
+        });
     }
 };

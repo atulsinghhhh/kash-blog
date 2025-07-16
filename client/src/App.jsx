@@ -14,7 +14,9 @@ import Footer from "./compoents/Footer"
 function App() {
   const location=useLocation();
   const hidePanel=['/login','/signup']
+  const footerPanel=['/login','/signup','/search','/profile']
   const showLayout=!hidePanel.includes(location.pathname);
+  const footerLayout=!footerPanel.includes(location.pathname);
   return (
     <>
       {showLayout && <Navbar/> }
@@ -50,7 +52,7 @@ function App() {
         }
         />
       </Routes>
-      {showLayout && <Footer/>}
+      {footerLayout && <Footer/>}
     </>
   )
 }
