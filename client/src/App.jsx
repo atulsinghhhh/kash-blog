@@ -14,9 +14,9 @@ import Footer from "./compoents/Footer"
 function App() {
   const location=useLocation();
   const hidePanel=['/login','/signup']
-  const footerPanel=['/login','/signup','/search','/profile']
+  const footerPanel=['/login','/signup','/search','/profile', '/post/']
   const showLayout=!hidePanel.includes(location.pathname);
-  const footerLayout=!footerPanel.includes(location.pathname);
+  const footerLayout = !footerPanel.some(path => location.pathname.startsWith(path));
   return (
     <>
       {showLayout && <Navbar/> }

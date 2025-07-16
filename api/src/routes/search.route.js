@@ -8,21 +8,29 @@ const router=Router();
 router.get("/", async (req, res) => {
     try {
         const query = req.query.query;
-        const regex = new RegExp(query, "i"); // case-insensitive
+        const regex = new RegExp(query, "i"); 
 
         const posts = await Post.find({ 
-        $or: [
-            { title: regex },
-            { content: regex },
-            { tags: regex }
-        ]
+            $or: [
+                { title: regex },
+                { content: regex },
+                { tags: regex }
+            ]
         }).populate("author", "username");
 
-        const users = await User.find({ username: regex });
+        const users = await User.find({ 
+            $or: [
+                { username: regex },
+                { name: regex } 
+            ]
+        });
 
         res.json({ posts, users });
     } catch (error) {
-        res.status(500).json({ message: "Search failed" });
+        res.status(500).json({
+            success: false,
+            message: "Search failed" 
+        });
     }
 });
 
