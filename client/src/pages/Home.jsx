@@ -23,6 +23,7 @@ function Home() {
     const fetchAllTags = async () => {
       try {
         const response = await axios.get(`${serverUrl}/api/post/tags`, { withCredentials: true });
+        console.log(response.data);
         setTags(response.data.tags);
       } catch (error) {
         console.error("Failed to fetch tags:", error);

@@ -8,6 +8,8 @@ router.route("/")
     .get(getAllPosts)
     .post(verifyjwt,createPost)
 
+router.get("/tags",getAllTags)
+
 router.get("/user/:id",verifyjwt,getPostById)
 router.get("/:id", getSinglePostById)
 
@@ -17,6 +19,5 @@ router.route("/:id")
     .delete(verifyjwt,removePost)
 
 
-router.get("/tags",getAllTags)
 
 export default router
