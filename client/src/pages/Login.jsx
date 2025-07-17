@@ -19,7 +19,7 @@ function Login() {
       },{withCredentials:true});
 
       setIsLoggedIn(true);
-      setUser(response.data);
+      setUser(response.data.user);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       navigate("/");
     } catch (error) {
