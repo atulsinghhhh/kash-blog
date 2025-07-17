@@ -1,4 +1,5 @@
 import { Post } from "../models/post.model.js";
+import { User } from "../models/users.model.js";
 
 export const createPost=async(req,res)=>{
     try {
@@ -89,24 +90,6 @@ export const getPostById=async(req,res)=>{
     }
 }
 
-// export const getAllTags = async (req, res) => {
-//     console.log("🔥 getAllTags controller called");
-//     try {
-//         const tags = await Post.distinct("tags"); // gets all unique tags
-//         console.log("tags: ",tags)
-//         res.status(200).json({
-//             success: true,
-//             tags
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: "Failed to fetch tags"
-//         });
-//     }
-// };
-
-
 
 export const getAllTags = async (req, res) => {
 
@@ -144,9 +127,6 @@ export const getAllTags = async (req, res) => {
         });
     }
 };
-
-
-
 
 
 export const removePost = async (req, res) => {
@@ -208,14 +188,13 @@ export const updatePost = async (req, res) => {
 
 export const getTopAuthors = async (req, res) => {
     try {
-    // Group by author and count number of posts
     const result = await Post.aggregate([
         { $group: { _id: "$author", postCount: { $sum: 1 } } },
         { $sort: { postCount: -1 } },
         { $limit: 5 },
         {
             $lookup: {
-                from: "users", // collection name
+                from: "users", 
                 localField: "_id",
                 foreignField: "_id",
                 as: "authorDetails"
@@ -235,10 +214,46 @@ export const getTopAuthors = async (req, res) => {
         authors: result
     });
     } catch (error) {
-    console.error("❌ Error fetching top authors:", error);
-    res.status(500).json({
+    return res.status(500).json({
         success: false,
         message: "Failed to fetch authors"
         });
+    }
+};
+
+export const toggleLike = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user.id;
+
+        const post = await Post.findById(postId);
+        if (!post) {
+        return res.status(404).json({ 
+                success: false,
+                message: "Post not found" 
+            });
+        }
+
+        if (!post.likes) {
+            post.likes = [];
+        }
+
+        const isLiked = post.likes.includes(userId);
+
+        if (isLiked) {
+            post.likes = post.likes.filter(id => id.toString() !== userId);
+        } else {
+            post.likes.push(userId);
+        }
+
+        await post.save();
+
+        return res.status(200).json({
+            success: true,
+            message: isLiked ? "Post unliked" : "Post liked",
+        });
+    } catch (error) {
+        console.error("Error in toggleLike:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
