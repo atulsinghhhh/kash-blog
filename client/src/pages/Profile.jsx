@@ -10,8 +10,27 @@ const Profile=()=>{
     const [name,setName]=useState("")
     const [bios,setBios]=useState("")
     const [avatar,setAvatar]=useState(null);
+    const [followers, setFollowers] = useState([]);
+    const [following, setFollowing] = useState([]);
+
+
 
     const navigate=useNavigate();
+
+    useEffect(()=>{
+        const fetchStats=async()=>{
+            try {
+                const response=await axios.get(`${serverUrl}/api/auth/follow-stats/${user._id}`,{
+                    withCredentials: true
+                })
+                setFollowers(response.data.followers);
+                setFollowing(response.data.following);
+            } catch (error) {
+                console.error("Error loading follow stats", error);
+            }
+        }
+        fetchStats();
+    },[user._id])
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -114,6 +133,36 @@ const Profile=()=>{
                             </button>
                         </>
                     )}
+                </div>
+            </div>
+
+            <div className="my-4">
+                {/* Followers Section */}
+                <h2 className="text-lg font-semibold mb-2">Followers ({followers.length})</h2>
+                <div className="flex flex-wrap gap-4">
+                    {followers.map(f => (
+                    <div
+                        key={f._id}
+                        className="flex items-center gap-2 p-3 border rounded-lg bg-gray-100 min-w-[160px]"
+                    >
+                        <img src={f.avatar} alt={f.username} className="w-8 h-8 rounded-full object-cover" />
+                        <span className="text-sm font-medium">@{f.username}</span>
+                    </div>
+                    ))}
+                </div>
+
+                {/* Following Section */}
+                <h2 className="text-lg font-semibold mt-8 mb-2">Following ({following.length})</h2>
+                <div className="flex flex-wrap gap-4">
+                    {following.map(f => (
+                    <div
+                        key={f._id}
+                        className="flex items-center gap-2 p-3 border rounded-lg bg-gray-100 min-w-[160px]"
+                    >
+                        <img src={f.avatar} alt={f.username} className="w-8 h-8 rounded-full object-cover" />
+                        <span className="text-sm font-medium">@{f.username}</span>
+                    </div>
+                    ))}
                 </div>
             </div>
 

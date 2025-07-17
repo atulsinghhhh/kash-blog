@@ -8,28 +8,38 @@ const PostCard = ({ post }) => {
     const author = post.author || {}; 
     const {serverUrl,user}=useContext(authDataProvider);
 
-    const [isFollowing,setIsFollowing]=useState(false);
+    const [isFollowing, setIsFollowing] = useState(false);
     const [likes,setLikes]=useState(post.likes?.length || 0);
     const [likedByUser,setLikedByUser]=useState(false);
     const [commentText, setCommentText] = useState("");
     const [comments, setComments] = useState([]);
 
-
     useEffect(()=>{
-        if(!user || !user._id === author._id) return
-        const checkFollowing=async()=>{
+        const check=async()=>{
             try {
-                const response=await axios.get(`${serverUrl}/api/auth/is-following/${author._id}`,{
-                    withCredentials:true
+                const response=await axios.get(`${serverUrl}/api/auth/follow-stats/${author._id}`,{
+                    withCredentials: true
                 })
-                setIsFollowing(response.data.isFollowing);
+                const followers=response.data.followers || []
+                setIsFollowing(followers.some(f=> f._id === user._id));
             } catch (error) {
-                console.error("Check follow failed", error);
+                console.log(error);
             }
         }
-        checkFollowing();
+        if(user && user._id !== author._id) check();
+    },[user,author])
 
-    },[author._id,user,serverUrl]);
+    const handleFollowToggle=async()=>{
+        try {
+            const response=await axios.put(`${serverUrl}/api/auth/follow/${author._id}`,{},{
+                withCredentials: true
+            })
+            setIsFollowing(response.data.isFollowing);
+        } catch (error) {
+            console.log("follow error",error);
+        }
+    }
+
 
     useEffect(()=>{
         if(user && post.likes){
@@ -37,16 +47,6 @@ const PostCard = ({ post }) => {
         }
     },[post.likes,user])
 
-    const handleFollow=async()=>{
-        try {
-            const response=await axios.put(`${serverUrl}/api/auth/follow/${author._id}`,{},{
-                withCredentials:true
-            })
-            setIsFollowing(response.data.isFollowing);
-        } catch (error) {
-            console.error("Follow/unfollow failed", error);
-        }
-    }
 
     const handleToggleLike=async()=>{
         try {
@@ -100,12 +100,13 @@ const PostCard = ({ post }) => {
                 </div>
                 {user && user._id !== author._id && (
                     <button
-                        onClick={handleFollow}
+                        onClick={handleFollowToggle}
                         className={`text-xs px-2 py-1 rounded ${isFollowing ? "bg-gray-300 text-black" : "bg-blue-500 text-white"}`}
                     >
                         {isFollowing ? "Unfollow" : "Follow"}
                     </button>
                 )}
+
             </div>
 
             <Link to={`/post/${post._id}`}>

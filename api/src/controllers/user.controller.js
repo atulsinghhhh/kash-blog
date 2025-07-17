@@ -2,7 +2,7 @@ import { User } from "../models/users.model.js";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs"
 import uploadOnCloudinary from "../utilis/cloudinary.js"
-import { Post } from "../models/post.model.js";
+
 
 export const userSignup=async(req,res)=>{
     try {
@@ -158,59 +158,6 @@ export const getProfile=async(req,res)=>{
     }
 }
 
-export const getUserProfile=async(req,res)=>{
-    try {
-        const user=await User.findOne({username: req.params.username}).select("-password")
-        if(!user){
-            return res.status(404).json({
-                success: false,
-                message: "user not found"
-            })
-        }
-
-        const posts=await Post.find({author:user._id}).sort({createdAt: -1});
-
-        return res.status(200).json({
-            success: true,
-            user,
-            posts
-        })
-
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error fetching Profile"
-        })
-    }
-}
-
-export const isFollowingByUsername=async(req,res)=>{
-    try {
-        const target=await User.findById({username: req.params.username});
-        const me=await User.findById(req.user._id);
-
-        if(!target){
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            })
-        }
-
-        const isFollowing=me.following.includes(target._id.toString());
-        return res.status(200).json({ 
-            success: true,
-            isFollowing 
-        });
-    } catch 
-    (error) {
-        return res.status(500).json({ 
-            success: false,
-            message: "Check follow failed" 
-        });
-    }
-}
-
 
 export const updatedProfile=async(req,res)=>{
     try {
@@ -260,44 +207,99 @@ export const updatedProfile=async(req,res)=>{
     }
 }
 
-export const toggleFollow = async (req, res) => {
+export const followUnfollowUser=async(req,res)=>{
     try {
-        const userId = req.user._id;
-        const userparams = req.params.id;
+        const currentuserId=req.user._id;
+        const targetUserId=req.params.id;
 
-        const currentUser = await User.findById(userId);
-        const targetUser = await User.findById(userparams);
-
-        if (!targetUser) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "User not found" 
-            });
+        if(currentuserId === targetUserId){
+            return res.status(400).json({
+                success: false,
+                message: "You can't follow yourself"
+            })
         }
 
-        const isFollowing = currentUser.following.includes(targetUser._id);
+        const currentUser=await User.findById(currentuserId);
+        const targetUser=await User.findById(targetUserId);
 
-        if (isFollowing) {
-            currentUser.following.pull(targetUser._id);
-            targetUser.followers.pull(currentUser._id);
+        if(!targetUser){
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+
+        const isFollowing=currentUser.following.includes(targetUserId);
+
+        if(isFollowing){
+            currentUser.following.pull(targetUserId);
+            targetUser.followers.pull(currentuserId);
         } else {
-            currentUser.following.push(targetUser._id);
-            targetUser.followers.push(currentUser._id);
-        }
+            currentUser.following.push(targetUserId);
+            targetUser.followers.push(currentuserId);
+        };
+        
 
         await currentUser.save();
         await targetUser.save();
 
         return res.status(200).json({
             success: true,
-            isFollowing: !isFollowing
-        });
+            isFollowing: !isFollowing,
+            message: isFollowing ? "unfollow" : "follow"
+        })
     } catch (error) {
-        console.error("Toggle follow error:", error);
         return res.status(500).json({
             success: false,
-            message: "Failed to follow/unfollow the user"
+            message: "follow error"
+        })
+    }
+}
+
+export const getFollowersAndFollowing=async(req,res)=>{
+    try {
+        const user=await User.findById(req.params.id)
+            .populate("followers", "username avatar")
+            .populate("following", "username avatar")
+
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            followers: user.followers,
+            following: user.following,
+        })
+    } catch (error) {
+        res.status(500).json({ 
+            success: false,
+            message: "Failed to fetch follow data"
+        })
+    }
+}
+
+
+export const getFollowData = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+        .populate("followers", "username avatar")
+        .populate("following", "username avatar");
+
+        if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            followers: user.followers,
+            following: user.following,
         });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
 
