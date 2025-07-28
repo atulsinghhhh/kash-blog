@@ -9,7 +9,7 @@ dbConnect()
     app.on('error', (error) => {
         console.error('app encountered an error:', error);
     });
-    app.listen(process.env.PORT,()=>{
+    app.listen(process.env.PORT,'0.0.0.0',()=>{
         console.log(`Server is running on the port ${process.env.PORT}`);
     })
 })

@@ -13,9 +13,9 @@ app.use(cors({
     credentials:true
 }));
 
-// app.use("/",(req,res)=>{
-//     res.send("welcome to kashlog, here you write a blog ")
-// })
+app.use("/",(req,res)=>{
+    res.send("welcome to kashlog, here you write a blog ")
+})
 
 app.use(express.json({limit:"20kb"}))
 app.use(cookieParser());
