@@ -73,6 +73,12 @@ function App() {
             </ProectRoutes>
           }
         />
+        <Route path="/profile/:id" element={
+          <ProectRoutes>
+            <Profile />
+          </ProectRoutes>
+        } />
+        
         <Route
           path="/update-post/:id"
           element={

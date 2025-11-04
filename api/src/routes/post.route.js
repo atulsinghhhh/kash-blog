@@ -1,5 +1,5 @@
 import Router from "express"
-import { createPost, getAllPosts, getPostById, removePost, updatePost,getSinglePostById,  getAllTags, getTopAuthors, toggleLike } from "../controllers/post.controller.js"
+import { createPost, getAllPosts, getPostById, removePost, updatePost,getSinglePostById,  getAllTags, getTopAuthors, toggleLike, newlyAddedUsers } from "../controllers/post.controller.js"
 import verifyjwt from "../middleware/auth.middleware.js"
 
 const router=Router()
@@ -10,6 +10,7 @@ router.route("/")
 
 router.get("/tags",getAllTags)
 router.get("/top-authors", getTopAuthors);
+router.get("/recent-users",newlyAddedUsers);
 
 router.put("/like/:id",verifyjwt,toggleLike)
 

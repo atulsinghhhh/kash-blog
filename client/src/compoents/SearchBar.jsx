@@ -8,23 +8,27 @@ const SearchBar = () => {
 
     const handleKeyPress = (e) => {
         if (e.key === "Enter" && query.trim()) {
-        // Decide route: e.g., /search?query=xyz
-        navigate(`/search?query=${encodeURIComponent(query.trim())}`);
-        setQuery(""); // clear input
+            navigate(`/search?query=${encodeURIComponent(query.trim())}`);
+            setQuery("");
         }
     };
 
     return (
-        <div className="flex items-center bg-gray-800 rounded-full px-3 py-1 w-full sm:w-auto">
-        <Search size={18} className="text-gray-400 mr-2" />
-        <input
-            type="text"
-            placeholder="Search posts, users..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="bg-transparent focus:outline-none text-sm flex-1"
-        />
+        <div className="relative w-full sm:w-80">
+            <div className="flex items-center bg-white/5 backdrop-blur-lg border border-white/10 hover:border-pink-400/40 transition-all rounded-full px-4 py-2 shadow-lg">
+                <Search size={18} className="text-pink-400 mr-2" />
+                <input
+                    type="text"
+                    placeholder="Search posts, users..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="bg-transparent text-gray-100 placeholder-gray-500 text-sm focus:outline-none flex-1"
+                />
+            </div>
+
+            {/* Glow Animation on Focus */}
+            <div className="absolute -inset-[1px] rounded-full blur-md bg-gradient-to-r from-pink-500/30 to-purple-500/30 opacity-0 focus-within:opacity-100 transition-all pointer-events-none" />
         </div>
     );
 };

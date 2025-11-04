@@ -259,3 +259,26 @@ export const toggleLike = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+
+export const newlyAddedUsers = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const users = await User.find()
+            .select('username avatar createdAt')
+            .sort({ createdAt: -1 })
+            .limit(limit);
+        
+        res.status(200).json({
+            success: true,
+            users
+        });
+    } catch (err) {
+        console.error("Error fetching recent users:", err);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch recent users"
+        });
+    }
+};
+

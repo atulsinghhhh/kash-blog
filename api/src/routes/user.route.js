@@ -1,5 +1,5 @@
 import Router from "express"
-import { followUnfollowUser, getFollowersAndFollowing, getProfile,  updatedProfile, userLogin, userLogout, userSignup } from "../controllers/user.controller.js";
+import { followUnfollowUser, getFollowersAndFollowing, getProfile,  updatedProfile, userLogin, userLogout, userSignup, getUserById } from "../controllers/user.controller.js";
 import verifyjwt from "../middleware/auth.middleware.js";
 import upload from "../middleware/multer.middleware.js"
 
@@ -22,6 +22,9 @@ router.patch("/update",verifyjwt,upload.fields([{
 
 router.put("/follow/:id",verifyjwt,followUnfollowUser)
 router.get("/follow-stats/:id",verifyjwt,getFollowersAndFollowing);
+
+// Public route to fetch a user's profile by id
+router.get("/:id", getUserById);
 
 
 
