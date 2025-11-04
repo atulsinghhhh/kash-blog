@@ -28,19 +28,21 @@ export const createPost=async(req,res)=>{
 
 export const getAllPosts=async(req,res)=>{
     try {
-        const posts=await Post.find()
-            .populate("author" ,"username avatar")
-            .sort({createdAt: -1})
+        const posts = await Post.find()
+            .populate("author", "username avatar")
+            .sort({createdAt: -1});
 
         return res.status(200).json({
             success: true,
-            posts
-        })
+            message: "Posts fetched successfully",
+            posts: posts || []
+        });
     } catch (error) {
+        console.error("Error fetching posts:", error);
         return res.status(500).json({
             success: false,
-            message: "fetch all the posts"
-        })
+            message: "Failed to fetch posts"
+        });
     }
 }
 

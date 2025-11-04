@@ -19,7 +19,8 @@ function Signup() {
         username,email,password
       },{withCredentials:true});
       console.log(response.data);
-      navigate("/login")
+      // navigate("/login")
+      navigate("/");
     } catch (error) {
       console.log("failed to signup to new user")
     }
