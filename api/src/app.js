@@ -1,3 +1,4 @@
+import dotenv from "dotenv"
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
@@ -5,11 +6,12 @@ import userRoutes from "./routes/user.route.js"
 import postRoutes from "./routes/post.route.js"
 import searchRoutes from "./routes/search.route.js"
 import commentRoutes from "./routes/comment.route.js"
+dotenv.config();
 
 const app=express();
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: process.env.FRONTEND_URL,
     credentials:true
 }));
 

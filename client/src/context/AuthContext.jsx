@@ -1,10 +1,12 @@
+import dotenv from "dotenv"
 import axios from "axios";
 import React, { createContext, useEffect, useState } from "react";
+dotenv.config();
 
 export const authDataProvider = createContext();
 
 const AuthProvider = ({ children }) => {
-  const serverUrl = "http://localhost:8800";
+  const serverUrl = vite.env.BACKEND_URL;
   // try to initialize user from localStorage so UI updates immediately after login
   const initialUser = (() => {
     try {
